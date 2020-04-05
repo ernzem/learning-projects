@@ -1,0 +1,598 @@
+---
+title: "Red Wine Exploration"
+author : "Ernestas Žemaitis"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, packages}
+# Load all of the packages that you end up using in your analysis in this code
+# chunk.
+
+# Notice that the parameter "echo" was set to FALSE for this code chunk. This
+# prevents the code from displaying in the knitted HTML output. You should set
+# echo=FALSE for all code chunks in your file, unless it makes sense for your
+# report to show the code that generated a particular plot.
+
+# The other parameters for "message" and "warning" should also be set to FALSE
+# for other code chunks once you have verified that each plot comes out as you
+# want it to. This will clean up the flow of your report.
+
+#Packages to load
+library(ggplot2)
+library(GGally)
+library(scales)
+library(lattice)
+library(MASS)
+library(memisc)
+
+# knitr: Suppress code/messages/warnings 
+#        Set default plot options and center them
+knitr::opts_chunk$set(fig.width=9,fig.height=5,fig.path='Figs/',
+                      fig.align='center',tidy=TRUE,
+                      echo=FALSE,warning=FALSE,message=FALSE)
+```
+
+```{r echo=FALSE, Load_the_Data}
+# Load the Data
+setwd('/home/ernestas/MEGAsync/Udacity/R_projects/Project/')
+pf <- read.csv('wineQualityReds.csv')
+pf <- na.omit(pf)
+```
+
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+# Show column headers
+names(pf)
+```
+
+Here is a data on each colum about value distribution between each wine cases.
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+# Statistical data about each column
+summary(pf)
+```
+
+What is clear from this table is that quality ratings only varies only from 3 to
+8.2nd - density variable isn't vary much which might not have effect for quality
+ratings. 3rd - We only have 1599 whine cases which is not arebig number for the
+analysis. 
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+# Plot quality rating histogram
+ggplot(aes(x=quality), data=pf) +
+  geom_histogram(color = 'black', binwidth = 1) +
+  scale_x_continuous("Quality rating", breaks = seq(1,10,1)) +
+  scale_y_continuous("Count") +
+  ggtitle('Quality rating distribution') +
+  theme(plot.title = element_text(hjust = 0.5))
+```
+
+Most vines are valued in between 5 and 6 quality rating. However, there are way
+lower number of cases where wine ratings are below 5 and higher than 6. Quality
+ratings are distributed symetrically in between 3 and 8.
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+# Plot histogram
+ggplot(aes(x=fixed.acidity), data=pf) +
+  geom_histogram(color = 'black', binwidth = 0.5)
+```
+
+Fixed acidity distribution is right skewed with a peak of around 7. Values are
+in range 4.6 and 15.9.
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+# Plot histogram
+ggplot(aes(x=volatile.acidity), data=pf) +
+  geom_histogram(color = 'black', binwidth = 0.1) 
+```
+
+Violatile acidity distribution is right skewed with a peak of 0.6 . Volatile
+acidity is varying from 0.12 to 1.58.
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+# Plot histogram
+ggplot(aes(x=citric.acid), data=pf) +
+  geom_histogram(color = 'black', binwidth = 0.05)
+```
+
+Citric acidity values varies between 0 and 1. Distribution is similar to right
+skewed shape with highest number of values at 0 and 0.5.
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+# Plot histogram
+ggplot(aes(x=residual.sugar), data=pf) +
+  geom_histogram(color = 'black', binwidth = 0.25)
+```
+
+Residual sugar varies from 0.9 all the way to 16. However most values are in
+ragne 1.9 to 2.6. This distribution is right skewed.
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+# Plot histogram
+ggplot(aes(x=chlorides), data=pf) +
+  geom_histogram(color = 'black', binwidth = 0.01)
+```
+
+Chlorides distribution is Right skewed. Most values are at 0.79 and varies from 
+0.012
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+# Plot histogram
+ggplot(aes(x=free.sulfur.dioxide), data=pf) +
+  geom_histogram(color = 'black', binwidth = 2)
+```
+
+Distribution is right skewed. Most values are about 5 and it varies from 1 to 72.
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+# Plot histogram
+ggplot(aes(x=total.sulfur.dioxide), data=pf) +
+  geom_histogram(color = 'black', binwidth = 5)
+```
+
+Total sulfur dioxide is also right skewed. These values varies a lot: from 6 to
+289. Most values are low ones - from 6 to 70.
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+# Plot histogram
+ggplot(aes(x=density), data=pf) +
+  geom_histogram(color = 'black', binwidth = 0.001)
+```
+
+Density distribution is symetrical.However wine density does not vary a lot.
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+# Plot histogram
+ggplot(aes(x=pH), data=pf) +
+  geom_histogram(color = 'black', binwidth = 0.05)
+```
+
+pH values stays in acid range. It varies from 2.7 to 4.1. Values distributed
+symetrically.
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+# Plot histogram
+ggplot(aes(x=sulphates), data=pf) +
+  geom_histogram(color = 'black', binwidth = 0.05)
+```
+
+Sulphate values distributed in right skewed shape.Values ranges from 0.33 to 2.
+Most values are between 9 and 9.5.
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+# Plot histogram
+ggplot(aes(x=alcohol), data=pf) +
+  geom_histogram(color = 'black', binwidth = 0.25)
+```
+
+Looks like alcohol values are also distributed in right skewed shape. Values
+ranges 8.49 to 14.90. Looks like most values are between 9 and 10.
+
+# Univariate Analysis
+
+### What is the structure of your dataset?
+
+This tidy data set contains 1,599 red wines with 11 variables on the 
+chemical properties of the of the Portuguese "Vinho Verde" red wine. 
+At least 3 wine experts rated the quality of each wine, providing a rating 
+between 0 (very bad) and 10 (very excellent).According to these ratings we will 
+try find what properties of wine that make wine get the highest ratings. Here we
+can see all collumns.
+
+### What is/are the main feature(s) of interest in your dataset?
+
+Chemical features of wine.
+
+### What other features in the dataset do you think will help support your \
+investigation into your feature(s) of interest?
+
+None of the atributes are stand out. However alcohol, fixed acidity, 
+violatile acidity, citric acidity, free & total sulfur dioxides are interest
+of mine because these atributes varies in wider range.
+
+### Did you create any new variables from existing variables in the dataset?
+
+I haven't created yet.
+
+### Of the features you investigated, were there any unusual distributions? \
+Did you perform any operations on the data to tidy, adjust, or change the form \
+of the data? If so, why did you do this?
+
+We checked for misisng values, however none of them were identified.
+
+# Bivariate Plots Section
+
+Because nothing stands out, we will try to plot every variable with quality
+atrribute.
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+# Plot scatter plot with mean and median lines.
+ggplot(aes(x=quality, y=volatile.acidity), data=pf) +
+  geom_point(color = 'blue', alpha = 0.25, size = 1, position = 'jitter') +
+  geom_line(aes(color = 'Mean'), stat = 'summary', fun.y = median) +
+  geom_line(aes(color = 'Median'), stat = 'summary', linetype = "dashed",
+            fun.y = mean) +
+  scale_x_continuous("Quality rating") +
+  scale_y_continuous("Volatile acidity") +
+  ggtitle('Wine quality by volatile acidity') +
+  scale_color_manual('', values = c("Mean" = "green", "Median" = "red")) +
+  theme(plot.title = element_text(hjust = 0.5))
+```
+
+As we can see violatile acidity tend to be lower, when quality ranking is going
+higher.
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+# Plot scatter plot with mean and median lines.
+ggplot(aes(x=quality, y=fixed.acidity), data=pf) +
+  geom_point(color = 'blue', alpha = 0.25, size = 1, position = 'jitter') +
+  geom_line(aes(color = 'Mean'), stat = 'summary', fun.y = median) +
+  geom_line(aes(color = 'Median'), stat = 'summary', linetype = "dashed",
+            fun.y = mean) +
+  scale_x_continuous("Quality rating") +
+  scale_y_continuous("Fixed acidity") +
+  ggtitle('Wine quality by fixed acidity') +
+  scale_color_manual('', values = c("Mean" = "green", "Median" = "red")) +
+  theme(plot.title = element_text(hjust = 0.5))
+```
+
+Mean and median values are almost the same accross all quality ratings.
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+# Plot scatter plot with mean and median lines.
+ggplot(aes(x=quality, y=citric.acid), data=pf) +
+  geom_point(color = 'blue', alpha = 0.25, size = 1, position = 'jitter') +
+  geom_line(aes(color = 'Mean'), stat = 'summary', fun.y = median) +
+  geom_line(aes(color = 'Median'), stat = 'summary', linetype = "dashed",
+            fun.y = mean) +
+  scale_x_continuous("Quality rating") +
+  scale_y_continuous("Citric acidity") +
+  ggtitle('Wine quality by citric acidity') +
+  scale_color_manual('', values = c("Mean" = "green", "Median" = "red")) +
+  theme(plot.title = element_text(hjust = 0.5))
+```
+
+Citric acidity tend to be higher in higher quality ratings.
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+# Plot scatter plot with mean and median lines.
+ggplot(aes(x=quality, y=residual.sugar), data=pf) +
+  geom_point(color = 'blue', alpha = 0.25, size = 1, position = 'jitter') +
+  geom_line(aes(color = 'Mean'), stat = 'summary', fun.y = median) +
+  geom_line(aes(color = 'Median'), stat = 'summary', linetype = "dashed",
+            fun.y = mean) +
+  scale_x_continuous("Quality rating") +
+  scale_y_continuous("Residual sugar") +
+  ggtitle('Wine quality by residual sugar') +
+  scale_color_manual('', values = c("Mean" = "green", "Median" = "red")) +
+  theme(plot.title = element_text(hjust = 0.5))
+```
+
+Looking to quality ratings, residual sugar stays almost the same accros the
+ratings.
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+# Plot scatter plot with mean and median lines.
+ggplot(aes(x=quality, y=chlorides), data=pf) +
+  geom_point(color = 'blue', alpha = 0.25, size = 1, position = 'jitter') +
+  geom_line(aes(color = 'Mean'), stat = 'summary', fun.y = median) +
+  geom_line(aes(color = 'Median'), stat = 'summary', linetype = "dashed",
+            fun.y = mean) +
+  scale_x_continuous("Quality rating") +
+  scale_y_continuous("Chlorides") +
+  ggtitle('Wine quality by chlorides') +
+  scale_color_manual('', values = c("Mean" = "green", "Median" = "red")) +
+  theme(plot.title = element_text(hjust = 0.5))
+```
+
+Chlorides also stays the same.
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+# Plot scatter plot with mean and median lines.
+ggplot(aes(x=quality, y=density), data=pf) +
+  geom_point(color = 'blue', alpha = 0.25, size = 1, position = 'jitter') +
+  geom_line(aes(color = 'Mean'), stat = 'summary', fun.y = median) +
+  geom_line(aes(color = 'Median'), stat = 'summary', linetype = "dashed",
+            fun.y = mean) +
+  scale_x_continuous("Quality rating") +
+  scale_y_continuous("Density") +
+  ggtitle('Wine quality by density') +
+  scale_color_manual('', values = c("Mean" = "green", "Median" = "red")) +
+  theme(plot.title = element_text(hjust = 0.5))
+```
+
+Density has a slight decrease, however it's values varies in very small numbers. 
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+# Plot scatter plot with mean and median lines.
+ggplot(aes(x=quality, y=total.sulfur.dioxide), data=pf) +
+  geom_point(color = 'blue', alpha = 0.25, size = 1, position = 'jitter') +
+  geom_line(aes(color = 'Mean'), stat = 'summary', fun.y = median) +
+  geom_line(aes(color = 'Median'), stat = 'summary', linetype = "dashed",
+            fun.y = mean) +
+  scale_x_continuous("Quality rating") +
+  scale_y_continuous("Total sulfur dioxide") +
+  ggtitle('Wine quality by total sulfur dioxide') +
+  scale_color_manual('', values = c("Mean" = "green", "Median" = "red")) +
+  theme(plot.title = element_text(hjust = 0.5))
+```
+
+Total sulfur dioxide remains almost the same except of slight peak at rating
+of 5.
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+# Plot scatter plot with mean and median lines.
+ggplot(aes(x=quality, y=pH), data=pf) +
+  geom_point(color = 'blue', alpha = 0.25, size = 1, position = 'jitter') +
+  geom_line(aes(color = 'Mean'), stat = 'summary', fun.y = median) +
+  geom_line(aes(color = 'Median'), stat = 'summary', linetype = "dashed",
+            fun.y = mean) +
+  scale_x_continuous("Quality rating") +
+  scale_y_continuous("pH") +
+  ggtitle('Wine quality by pH') +
+  scale_color_manual('', values = c("Mean" = "green", "Median" = "red")) +
+  theme(plot.title = element_text(hjust = 0.5))
+```
+
+pH is tend to be slighty more acid
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+# Plot scatter plot with mean and median lines.
+ggplot(aes(x=quality, y=sulphates), data=pf) +
+  geom_point(color = 'blue', alpha = 0.25, size = 1, position = 'jitter') +
+  geom_line(aes(color = 'Mean'), stat = 'summary', fun.y = median) +
+  geom_line(aes(color = 'Median'), stat = 'summary', linetype = "dashed",
+            fun.y = mean) +
+  scale_x_continuous("Quality rating") +
+  scale_y_continuous("Sulphates") +
+  ggtitle('Wine quality by sulphates') +
+  scale_color_manual('', values = c("Mean" = "green", "Median" = "red")) +
+  theme(plot.title = element_text(hjust = 0.5))
+```
+
+Sulphates has a small increase in higher quality rating wines.
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+# Plot scatter plot with mean and median lines.
+ggplot(aes(x=quality, y=alcohol), data=pf) +
+  geom_point(color = 'blue', alpha = 0.25, size = 1, position = 'jitter') +
+  geom_line(aes(color = 'Mean'), stat = 'summary', fun.y = median) +
+  geom_line(aes(color = 'Median'), stat = 'summary', linetype = "dashed",
+            fun.y = mean) +
+  scale_x_continuous("Quality rating") +
+  scale_y_continuous("Alcohol") +
+  ggtitle('Wine quality by citric alcohol') +
+  scale_color_manual('', values = c("Mean" = "green", "Median" = "red")) +
+  theme(plot.title = element_text(hjust = 0.5))
+```
+
+Average and median values of alchocol tend to be almost the same from ratings 3 
+to 5. However in higher quality ratings wines achohol values tend to be higher.
+
+# Bivariate Analysis
+
+Most median and mean values from attributes doesn't vary alot or stays the same
+in all ratings. However, alcohol, volatile.acidity, citric.acid, sulpahtes
+stands out from all atributes by having most changes accross quality ratings. 
+
+### Talk about some of the relationships you observed in this part of the \
+investigation. How did the feature(s) of interest vary with other features in \
+the dataset?
+
+### Did you observe any interesting relationships between the other features \
+(not the main feature(s) of interest)?
+
+### What was the strongest relationship you found?
+
+Alcohol has the strongest relationship.
+
+# Multivariate Plots Section
+
+We will try to group all quality ratings in three groups:
+ - Low rating group (ratings in range 3 to 5)
+ - Midle rating group (ratings in range 5 to 6)
+ - High rating group (ratings in range 6 to 8)
+
+The reason of middle rating group to be "narrow" is because most of wines
+gets ratings between 5 and 6.
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+# Create new column with quality category values
+pf$quality_range.bucket <- cut(pf$quality, c(2,5,6,8),
+                               labels = c("Low (3 to 5)",
+                                          "Medium (6)",
+                                          "High (7 to 8)"))
+```
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+# Show alcohol and sulphates scatter plot with colors representing wine quality
+# group.
+ggplot(aes(x=alcohol, y=sulphates), data=pf) +
+  geom_point(aes(color=quality_range.bucket)) + 
+  scale_y_log10() + 
+  scale_color_brewer("Quality\nCategories", type = 'div')
+```
+
+As wecan see, green dots shifted to the right compared yellow ones. That shows
+wines that has higher quality rating might tend to have higher alcohol quantity.
+Also, higher quality wines tend to have slightly higher sulphates quantities.
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+# Show alcohol and volatile.axidity scatter plot with colors representing wine
+# quality group.
+ggplot(aes(x=alcohol, y=volatile.acidity), data=pf)+ geom_point(aes(color=quality_range.bucket)) + 
+  scale_y_log10() + 
+  scale_color_brewer("Quality\nCategories", type = 'div')
+```
+
+This graph indicates that lower rating group tend to have higher violatile
+acidity and lower alcohol rating comapred to higher rating wines.
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+# Show alcohol and citric.acid scatter plot with colors representing wine
+# quality group.
+ggplot(aes(x=alcohol, y=citric.acid), data=pf)+ 
+  scale_y_log10() + 
+  geom_point(aes(color=quality_range.bucket)) + 
+  scale_color_brewer("Quality\nCategories", type = 'div')
+```
+
+Here we can see that "lower quality" wines tend to have low and high values of
+citric acidity. However, "higher quality" wines a tend to have slighty more 
+values in higher values of citric acidity.
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+# New column with calculated quality_index based on alcohol citric.acid and
+# volatile.acidity values
+pf$quality_index <- (pf$alcohol * pf$citric.acid)/(pf$volatile.acidity)
+```
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+# scatterplot (jittered) - Quality and Quality Index, by Quality Categories
+ggplot(aes(x=quality, y=quality_index), data=pf) +
+  geom_jitter(width = 0.35, height = 0, aes(color=quality_range.bucket)) + 
+  scale_y_log10() + 
+  scale_color_brewer("Quality\nCategories", type = 'div')
+```
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+# Create linear model for quality rating and alcohol values.
+m1 <- lm(I(quality) ~ I(alcohol), data = pf)
+m2 <- update(m1, ~ . + volatile.acidity) # update model with volatile.acidity
+m3 <- update(m2, ~ . + citric.acid) # update model with citric.acid values
+m4 <- update(m3, ~ . + sulphates)# update model with sulphates values
+mtable(m1, m2,m3, m4)
+```
+
+# Multivariate Analysis
+
+### Talk about some of the relationships you observed in this part of the \
+investigation. Were there features that strengthened each other in terms of \
+looking at your feature(s) of interest?
+
+Features strengthen each, but not by much. Also alcohol and citric acidity has
+positive relationship whereas violatile.acidity - negative relationship.
+
+### Were there any interesting or surprising interactions between features?
+
+The interesting findings is that how small affect has each of theses atributes.
+Anotehr suprising thing - looks like strongest correlation has an alcohol 
+compared to ohter atributes.
+
+### OPTIONAL: Did you create any models with your dataset? Discuss the \
+strengths and limitations of your model.
+Yes, we did linear regression with variables that looks like have most effect.
+However results shows none of variables has an effect on wine ratings.
+------
+
+# Final Plots and Summary
+
+### Plot One
+```{r echo=FALSE, Plot_One}
+# Print Quality rating distribution
+ggplot(aes(x=quality), data=pf) +
+  geom_histogram(color = 'black', binwidth = 1) +
+  scale_x_continuous("Quality rating", breaks = seq(1,10,1)) +
+  scale_y_continuous("Count") +
+  ggtitle('Quality rating distribution') +
+  theme(plot.title = element_text(hjust = 0.5))
+```
+
+### Description One
+As we cans see ratings are distributed almost in perfect noraml distribution. 
+But even though ratings can be from 0 to 10, in real word it varies from 3 to 8.
+Also there are no float ratings, because wines are evaluated in teger values.
+
+### Plot Two
+```{r echo=FALSE, Plot_Two}
+# Plot alcohol and quality rating scatter plot with mean and median lines.
+ggplot(aes(x=quality, y=alcohol), data=pf) +
+  geom_point(color = 'blue', alpha = 0.25, size = 1, position = 'jitter') +
+  geom_line(aes(color = 'Mean'), stat = 'summary', fun.y = median) +
+  geom_line(aes(color = 'Median'), stat = 'summary', linetype = "dashed",
+            fun.y = mean) +
+  scale_x_continuous("Quality rating") +
+  scale_y_continuous("Alcohol (% by Volume)") +
+  ggtitle('Wine quality by citric alcohol') +
+  scale_color_manual('', values = c("Mean" = "green", "Median" = "red")) +
+  theme(plot.title = element_text(hjust = 0.5))
+```
+
+### Description Two
+Looks like alcohol has a biggest effect on overall rating. Hewever it seems that
+mean and median of alcohol values in quality ratings 3 to 5 remains almost
+stable. But from rating 5, alcohol mean and median tends to rise. It seems that
+on higher quality ratings, lowest alcohol values tend to grow up whereas highest
+alcohol values remains the same acrross all ratings that are 5 or higher. 
+
+### Plot Three
+```{r echo=FALSE, Plot_Three}
+# scatterplot (jittered) - Quality and Quality Index, by Quality Categories
+ggplot(aes(x=quality, y=quality_index), data=pf) +
+  geom_jitter(width = 0.35, height = 0, aes(color=quality_range.bucket)) + 
+  scale_y_log10("Quality index") + 
+  scale_color_brewer("Quality\nCategories", type = 'div') +
+  ggtitle('Quality index comparison with quality values') +
+  scale_x_continuous("Quality rating") +
+  theme(plot.title = element_text(hjust = 0.5))
+```
+
+### Description Three
+In the last chart we compare Quality index with quality ratings. In perfect word
+with every higher quality range (ratings 3-5, 5-6, 6-8), all wine should be in
+higher position in the graph due to higher quality index. However this is not 
+the case adn perhaps that's why the correlation between wine atributes and
+quality ratings are low. As we can see lowest quality index in all cathegories
+are the same through low middle and high rating groups. But highest quality 
+indexes has small difference: low quality ratign group tend to have lower values
+whereas middle and lower high rating wines tend to have the highest quality 
+index values. What's interesting is the highest quality rating wines tend have 
+lower values - all most the same as of quality rating 4.
+------
+  
+# Reflection  
+This tidy data set contains 1,599 red wines with 11 variables on the chemical 
+properties of the wine. At least 3 wine experts rated the quality of each wine, 
+providing a rating between 0 (very bad) and 10 (very excellent). During this 
+analysis I tried to look at histograms of every variable in order to get sense 
+how values are distributed and how far they fluctuate. Then I compared every 
+chemical variable with quality rating with that. The goal was to identify 
+patterns that might affect rating values. After variables being  chosen, i check
+how much effect they have in linear model as well as making plots with quality
+rating groups.
+  
+Before starting this analysis I was hoping to find clear patterns of some 
+variables affecting quality ratings. After seeing some histograms it was clear 
+that some variables like density, pH has very low fluctuation. Also they are a 
+byproduct of other variables (Density changes when fluid chemistry differs; pH 
+changes when we have different amounts of acid or base elements. A lot of other 
+variables are either acid or basic). When comparing quality rating with each 
+every variable, there wasn’t any clear tendency. Most promising variable were 
+alcohol, volatile acidity, citric acid and sulfates. However, when analyzing 
+further with quality rating categories, comparing quality rating with quality 
+index (calculated from chosen variables), patterns that chosen variables would 
+affect quality ratings were minimal, if any. Lastly linear model supported my
+findings: correlation was low. The findings were disappointing since I was 
+expecting different results.
+  
+As any analysis it has some flaws that might influence wrong results. This might
+be due to these reasons:
+ - Because wines were evaluated by humans, rating could be influenced by subject 
+feelings and tastes which this data not taking into account. Also psychological 
+state of the members during testing can also make rating subjective.  
+  
+ 1. There might be other attributes that aren't reflected in the data set. For
+example color of wine, taste preferences of members of wine testing commission.  
+ 2. Small sample data. The lack of data was clear especially on low and high 
+quality ratings;  
+ 3. All wines were made by 1 company. Diversity of wine suppliers would make
+ data applicable about all red wine market.
+It would be nice to expand this analysis with bigger, more diverse data set.
+  
+   
+In general I’ve found this data analysis expand my view on wines. It also 
+sharpen my data analysis skills and R language programming skills. Although it 
+wasn’t easy, it was worth it.
